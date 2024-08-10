@@ -72,8 +72,6 @@ bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 	{
 		bIsSelected = true;
 		TileTypeMaterial->SetVectorParameterValue(FName("Tint"), FLinearColor::White);
-		TileMesh->SetMaterial(0, TileTypeMaterial);
-
 		Selector->OnSelectionEnded.AddDynamic(this, &ABaseTile::HandleOnSelectionEnded);
 
 		return true;

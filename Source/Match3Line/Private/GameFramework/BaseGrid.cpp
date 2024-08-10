@@ -7,14 +7,16 @@
 // Sets default values
 ABaseGrid::ABaseGrid()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Set the deafult values for the grid layout
 	GridWidth = 7;
 	GridHeight = 6;
 	HexSize = 100.0f;
-	
+	TileArray.SetNum(GridWidth * GridHeight, false);
+	GridPositionsArray.SetNum(GridWidth * GridHeight, false);
+
 }
 
 // Called when the game starts or when spawned
@@ -41,6 +43,7 @@ void ABaseGrid::GenerateGrid()
 	{
 		for (int x = 0; x < GridWidth; x++)
 		{
+			// Spawn Tile on with regard of hex grid offset
 			float XOffset = y * HexWidth;
 			float YOffset = x * HexHeight;
 
@@ -49,10 +52,43 @@ void ABaseGrid::GenerateGrid()
 				XOffset += HexWidth / 2;
 			}
 
-			FVector HexLocation(XOffset, YOffset, 0.0f);
-			GetWorld()->SpawnActor<ABaseTile>(Tile, HexLocation, FRotator::ZeroRotator);
+			FVector HexLocation(-XOffset, YOffset, 0.0f);
+
+			// Spawn tile and add tile to array
+			int MappedID = x + (y * GridWidth);
+
+			GridPositionsArray[MappedID] = HexLocation;
+			TileArray[MappedID] = GetWorld()->SpawnActor<ABaseTile>(Tile, HexLocation, FRotator::ZeroRotator);
+
+			if (TileArray[MappedID])
+			{
+				TileArray[MappedID]->OnTileDestroyed.AddDynamic(this, &ABaseGrid::OnTileDestroyed);
+			}
 		}
 	}
 
+}
+
+void ABaseGrid::OnTileDestroyed(int DestroyedTileID)
+{
+	// 
+	UE_LOG(LogTemp, Warning, TEXT("Tile gone %i"), DestroyedTileID);
+	int ReplacingTileID = DestroyedTileID - GridWidth;
+	UE_LOG(LogTemp, Warning, TEXT("Tile drops %i"), ReplacingTileID);
+
+
+	if (ReplacingTileID > 0) 
+	{
+		if (TileArray[ReplacingTileID])
+		{
+			TileArray[ReplacingTileID]->SetActorLocation(GridPositionsArray[DestroyedTileID]);
+			TileArray[DestroyedTileID] = TileArray[ReplacingTileID];
+			TileArray[ReplacingTileID]->Destroy();
+		}
+	}
+	else 
+	{
+		TileArray[DestroyedTileID] = GetWorld()->SpawnActor<ABaseTile>(Tile, GridPositionsArray[DestroyedTileID], FRotator::ZeroRotator);
+	}
 }
 

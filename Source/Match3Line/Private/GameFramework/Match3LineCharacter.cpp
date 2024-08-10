@@ -37,6 +37,7 @@ AMatch3LineCharacter::AMatch3LineCharacter()
 	FixedCamera->SetupAttachment(RootComponent);
 
 	FixedCamera->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
+
 }
 
 // Called when the game starts or when spawned
@@ -60,22 +61,29 @@ void AMatch3LineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(ClickAction, ETriggerEvent::Triggered, this, &AMatch3LineCharacter::Interact);
+		EnhancedInputComponent->BindAction(StartSelectionAction, ETriggerEvent::Triggered, this, &AMatch3LineCharacter::StartSelection);
+		EnhancedInputComponent->BindAction(StartSelectionAction, ETriggerEvent::Completed, this, &AMatch3LineCharacter::EndSelection);
 	}
 }
 
-void AMatch3LineCharacter::Interact()
+void AMatch3LineCharacter::StartSelection()
 {
-	AActor* TileUnderCursor = GetTileUnderCursor();
+	ABaseTile* TileUnderCursor = GetTileUnderCursor();
 	if (TileUnderCursor)
 	{
-		// Implement your interaction logic here
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Interacted with: %s"), *TileUnderCursor->GetName()));
-		// You can call any function or modify any property of the actor here
+		UE_LOG(LogTemp, Log,TEXT("Character selects Tile: %s"), *TileUnderCursor->GetName());
+
+		TileUnderCursor->SelectTile(this);
 	}
 }
 
-AActor* AMatch3LineCharacter::GetTileUnderCursor()
+void AMatch3LineCharacter::EndSelection()
+{
+	OnSelectionEnded.Broadcast(false);
+	OnSelectionEnded.Clear();
+}
+
+ABaseTile* AMatch3LineCharacter::GetTileUnderCursor()
 {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
@@ -89,11 +97,11 @@ AActor* AMatch3LineCharacter::GetTileUnderCursor()
 			FHitResult HitResult;
 			GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility);
 
-			if ((HitResult.GetActor()))
+			if (Cast<ABaseTile>(HitResult.GetActor()))
 			{
 				// Optionally draw a debug line in the editor to visualize the trace
 				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 1.0f);
-				return (HitResult.GetActor());
+				return Cast<ABaseTile>(HitResult.GetActor());
 			}
 		}
 	}

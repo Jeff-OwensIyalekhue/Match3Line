@@ -6,6 +6,5 @@
 
 AMatch3LineGameMode::AMatch3LineGameMode() : Super()
 {
-	//DefaultPawnClass = AMatch3LineCharacter::StaticClass();
 	
 }

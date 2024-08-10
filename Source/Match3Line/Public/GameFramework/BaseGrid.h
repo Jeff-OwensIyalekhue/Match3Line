@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseGrid.generated.h"
 
-//class ABaseTile;
+class ABaseTile;
 
 UCLASS()
 class MATCH3LINE_API ABaseGrid : public AActor
@@ -20,12 +20,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GridLayout")
 	int GridHeight;
 
+	// Size a tile in the grid occupies
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GridLayout")
-	float HexSize;
+	float HexSize; 
 
+	// Reference to the possible positions of the grid
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GridLayout")
+	TArray<FVector> GridPositionsArray;	
+
+	// Reference to the tiles of the grid
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GridLayout")
+	TArray<ABaseTile*> TileArray;	
+	
 	// Reference to the tile class to use to create the grid
 	UPROPERTY(EditAnywhere, Category = "Tiles")
-	TSubclassOf<class ABaseTile> Tile;
+	TSubclassOf<ABaseTile> Tile; 
 	
 public:	
 	// Sets default values for this actor's properties
@@ -40,6 +49,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	// Function to generate the Grid
 	void GenerateGrid();
+
+
+	// Function to handle the destruction of tile
+	UFUNCTION()
+	void OnTileDestroyed(int DestroyedTileID);
 
 };

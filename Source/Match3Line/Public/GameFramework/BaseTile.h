@@ -15,6 +15,8 @@ enum class ETileType : uint8
 	Yellow
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileDestroyedDelegate, int, DestroyedTileID);
+
 UCLASS()
 class MATCH3LINE_API ABaseTile : public AActor
 {
@@ -29,6 +31,8 @@ protected:
 	UMaterialInstanceDynamic* TileTypeMaterial;
 
 	bool bIsSelected;
+
+	int ID;
 
 private:
 	// Type of the tile
@@ -49,9 +53,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetSelected(bool bNewSelection);
+	UFUNCTION()
+	bool SelectTile(class AMatch3LineCharacter* Selector);
 
-	UFUNCTION(BlueprintCallable)
-	bool GetIsSelected();
+	UFUNCTION()
+	void HandleOnSelectionEnded(bool bIsValidSelection);
+
+	virtual void Destroyed() override;
+
+	FOnTileDestroyedDelegate OnTileDestroyed;
 };

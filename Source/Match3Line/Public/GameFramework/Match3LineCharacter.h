@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Match3LineCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectionEndedDelegate, bool, bIsValidSelection);
+
 UCLASS()
 class MATCH3LINE_API AMatch3LineCharacter : public ACharacter
 {
@@ -16,9 +18,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FixedCamera;
 
+	TArray<class BaseTile*> SelectedTiles;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* ClickAction;
+	class UInputAction* StartSelectionAction;
+	
 
 public:
 	// Sets default values for this character's properties
@@ -35,9 +40,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Interact function
-	void Interact();
+	// Function bound to the event when the left mouse button is tiggered, calls GetTileUnderCursor()
+	void StartSelection();
 
-	// Line trace function
-	class AActor* GetTileUnderCursor();
+	// Functionbound to the event when the left mouse button is released, 
+	void EndSelection();
+
+	FOnSelectionEndedDelegate OnSelectionEnded;
+
+	// Function to get the tile the mouse cursor points to
+	class ABaseTile* GetTileUnderCursor();
 };
