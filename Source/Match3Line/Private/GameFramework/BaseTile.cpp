@@ -66,6 +66,11 @@ void ABaseTile::Tick(float DeltaTime)
 
 }
 
+void ABaseTile::SetID(int NewID)
+{
+	ID = NewID;
+}
+
 bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 {
 	if (!bIsSelected)
@@ -82,6 +87,37 @@ bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 	return false;
 }
 
+void ABaseTile::DeselesctTile(AMatch3LineCharacter* Selector)
+{
+	// ToDo some how remove the bind to the delegate
+
+	bIsSelected = false;
+
+	FLinearColor TileColor;
+
+	switch (TileType)
+	{
+	case ETileType::Red:
+		TileColor = FLinearColor::Red;
+		break;
+	case ETileType::Green:
+		TileColor = FLinearColor::Green;
+		break;
+	case ETileType::Blue:
+		TileColor = FLinearColor::Blue;
+		break;
+	case ETileType::Yellow:
+		TileColor = FLinearColor::Yellow;
+		break;
+	default:
+		break;
+	}
+
+	TileTypeMaterial->SetVectorParameterValue(FName("Tint"), TileColor);
+
+	TileMesh->SetMaterial(0, TileTypeMaterial);
+}
+
 void ABaseTile::HandleOnSelectionEnded(bool bIsValidSelection)
 {
 	if (bIsValidSelection)
@@ -90,6 +126,7 @@ void ABaseTile::HandleOnSelectionEnded(bool bIsValidSelection)
 	}
 	else
 	{
+		// TOoDo remove redudancy with DeselectTile()
 		bIsSelected = false;
 
 		FLinearColor TileColor;

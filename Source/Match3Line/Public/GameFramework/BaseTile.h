@@ -34,7 +34,7 @@ protected:
 
 	int ID;
 
-private:
+public:
 	// Type of the tile
 	ETileType TileType;
 	
@@ -53,8 +53,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetID(int NewID);
+
 	UFUNCTION()
 	bool SelectTile(class AMatch3LineCharacter* Selector);
+
+	// Function to deselect a tile for the case this happens during the selection phase -> moving the line backwards the selection
+	UFUNCTION()
+	void DeselesctTile(class AMatch3LineCharacter* Selector);
 
 	UFUNCTION()
 	void HandleOnSelectionEnded(bool bIsValidSelection);

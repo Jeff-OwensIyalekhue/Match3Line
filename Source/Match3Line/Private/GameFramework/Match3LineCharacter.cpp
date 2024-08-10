@@ -14,7 +14,7 @@
 // Sets default values
 AMatch3LineCharacter::AMatch3LineCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Disable character movement
@@ -44,7 +44,7 @@ AMatch3LineCharacter::AMatch3LineCharacter()
 void AMatch3LineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -71,7 +71,37 @@ void AMatch3LineCharacter::StartSelection()
 	ABaseTile* TileUnderCursor = GetTileUnderCursor();
 	if (TileUnderCursor)
 	{
-		UE_LOG(LogTemp, Log,TEXT("Character selects Tile: %s"), *TileUnderCursor->GetName());
+		UE_LOG(LogTemp, Log, TEXT("Character selects Tile: %s"), *TileUnderCursor->GetName());
+
+		if (SelectedTiles.Contains(TileUnderCursor))
+		{
+			if (SelectedTiles.Num() - 2 > 0)
+			{
+				if (SelectedTiles[SelectedTiles.Num() - 2] == TileUnderCursor)
+				{
+					SelectedTiles[SelectedTiles.Num() - 1]->DeselesctTile(this);
+					SelectedTiles.RemoveAt(SelectedTiles.Num() - 1);
+				}
+			}
+			return;
+		}
+
+		// ToDo check if tile under cursor ist neighbouring the last tile in the array
+		if (SelectedTiles.Num() > 0)
+		{
+			if (SelectedTiles[0]->TileType == TileUnderCursor->TileType)
+			{
+				SelectedTiles.Add(TileUnderCursor);
+			}
+			else 
+			{
+				return;
+			}
+		}
+		else
+		{
+			SelectedTiles.Add(TileUnderCursor);
+		}
 
 		TileUnderCursor->SelectTile(this);
 	}
@@ -79,7 +109,9 @@ void AMatch3LineCharacter::StartSelection()
 
 void AMatch3LineCharacter::EndSelection()
 {
-	OnSelectionEnded.Broadcast(false);
+	SelectedTiles.Empty();
+	bool bIsValidSelection = SelectedTiles.Num() > 3;
+	OnSelectionEnded.Broadcast(bIsValidSelection);
 	OnSelectionEnded.Clear();
 }
 

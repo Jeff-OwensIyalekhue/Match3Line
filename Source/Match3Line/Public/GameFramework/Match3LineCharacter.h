@@ -18,7 +18,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FixedCamera;
 
-	TArray<class BaseTile*> SelectedTiles;
+	TArray<class ABaseTile*> SelectedTiles;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

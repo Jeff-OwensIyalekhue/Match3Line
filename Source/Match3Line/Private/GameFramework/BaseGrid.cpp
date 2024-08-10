@@ -62,6 +62,7 @@ void ABaseGrid::GenerateGrid()
 
 			if (TileArray[MappedID])
 			{
+				TileArray[MappedID]->SetID(MappedID);
 				TileArray[MappedID]->OnTileDestroyed.AddDynamic(this, &ABaseGrid::OnTileDestroyed);
 			}
 		}
