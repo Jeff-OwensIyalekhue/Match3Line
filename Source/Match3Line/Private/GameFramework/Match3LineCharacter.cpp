@@ -71,11 +71,10 @@ void AMatch3LineCharacter::StartSelection()
 	ABaseTile* TileUnderCursor = GetTileUnderCursor();
 	if (TileUnderCursor)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Character selects Tile: %s"), *TileUnderCursor->GetName());
-
+		// deselect tiles when back tracking the path of selected tiles
 		if (SelectedTiles.Contains(TileUnderCursor))
 		{
-			if (SelectedTiles.Num() - 2 > 0)
+			if (SelectedTiles.Num() - 2 >= 0)
 			{
 				if (SelectedTiles[SelectedTiles.Num() - 2] == TileUnderCursor)
 				{
@@ -85,7 +84,7 @@ void AMatch3LineCharacter::StartSelection()
 			}
 			return;
 		}
-
+		
 		// ToDo check if tile under cursor ist neighbouring the last tile in the array
 		if (SelectedTiles.Num() > 0)
 		{
@@ -93,7 +92,7 @@ void AMatch3LineCharacter::StartSelection()
 			{
 				SelectedTiles.Add(TileUnderCursor);
 			}
-			else 
+			else
 			{
 				return;
 			}
@@ -109,9 +108,15 @@ void AMatch3LineCharacter::StartSelection()
 
 void AMatch3LineCharacter::EndSelection()
 {
+	UE_LOG(LogTemp, Log, TEXT("Character ends selection | %i tile(s) are selected"), SelectedTiles.Num());
+	bool bIsValidSelection = SelectedTiles.Num() >= 3;
+	OnSelectionEnded.Broadcast(bIsValidSelection); // Delegate unnessecary?
+	//ToDo inform grid, grid shpuld handle destruction and tile shift creation
+	for (ABaseTile* Tile : SelectedTiles)
+	{
+		Tile->DeselesctTile(this);
+	}
 	SelectedTiles.Empty();
-	bool bIsValidSelection = SelectedTiles.Num() > 3;
-	OnSelectionEnded.Broadcast(bIsValidSelection);
 	OnSelectionEnded.Clear();
 }
 

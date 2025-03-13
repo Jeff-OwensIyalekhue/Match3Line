@@ -3,6 +3,7 @@
 
 #include "GameFramework/BaseTile.h"
 #include "GameFramework/Match3LineCharacter.h"
+//#include "Components/TextRenderComponent.h"
 
 // Sets default values
 ABaseTile::ABaseTile()
@@ -12,6 +13,7 @@ ABaseTile::ABaseTile()
 
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tile Mesh"));
 	RootComponent = TileMesh;
+	//TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text Render"));
 
 }
 
@@ -71,6 +73,12 @@ void ABaseTile::SetID(int NewID)
 	ID = NewID;
 }
 
+void ABaseTile::SetPosition(int x, int y)
+{
+	xPosition = x;
+	yPosition = y;
+}
+
 bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 {
 	if (!bIsSelected)
@@ -79,7 +87,8 @@ bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 		TileTypeMaterial->SetVectorParameterValue(FName("Tint"), FLinearColor::White);
 		TileMesh->SetMaterial(0, TileTypeMaterial);
 
-		Selector->OnSelectionEnded.AddDynamic(this, &ABaseTile::HandleOnSelectionEnded);
+		// ToDo bind to grid not tiles?
+		//Selector->OnSelectionEnded.AddDynamic(this, &ABaseTile::HandleOnSelectionEnded);
 
 		return true;
 	}
@@ -89,9 +98,10 @@ bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 
 void ABaseTile::DeselesctTile(AMatch3LineCharacter* Selector)
 {
-	// ToDo some how remove the bind to the delegate
 
 	bIsSelected = false;
+
+#pragma region return color scheme
 
 	FLinearColor TileColor;
 
@@ -116,50 +126,26 @@ void ABaseTile::DeselesctTile(AMatch3LineCharacter* Selector)
 	TileTypeMaterial->SetVectorParameterValue(FName("Tint"), TileColor);
 
 	TileMesh->SetMaterial(0, TileTypeMaterial);
+
+#pragma endregion
+
+	//Selector->OnSelectionEnded.RemoveDynamic(this, &ABaseTile::HandleOnSelectionEnded);
 }
 
-void ABaseTile::HandleOnSelectionEnded(bool bIsValidSelection)
-{
-	if (bIsValidSelection)
-	{
-		Destroy();
-	}
-	else
-	{
-		// TOoDo remove redudancy with DeselectTile()
-		bIsSelected = false;
-
-		FLinearColor TileColor;
-
-		switch (TileType)
-		{
-		case ETileType::Red:
-			TileColor = FLinearColor::Red;
-			break;
-		case ETileType::Green:
-			TileColor = FLinearColor::Green;
-			break;
-		case ETileType::Blue:
-			TileColor = FLinearColor::Blue;
-			break;
-		case ETileType::Yellow:
-			TileColor = FLinearColor::Yellow;
-			break;
-		default:
-			break;
-		}
-
-		TileTypeMaterial->SetVectorParameterValue(FName("Tint"), TileColor);
-
-		TileMesh->SetMaterial(0, TileTypeMaterial);
-	}
-}
-
-void ABaseTile::Destroyed()
-{
-	OnTileDestroyed.Broadcast(ID);
-	UE_LOG(LogTemp, Warning, TEXT("Tile %i is about to get destroyed"), ID);
-
-	Super::Destroyed();
-}
+//void ABaseTile::HandleOnSelectionEnded(bool bIsValidSelection)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("handle on selection delegete shouldn't be called"));
+//	//if (bIsValidSelection)
+//	//{
+//	//	Destroy();
+//	//}
+//}
+//
+//void ABaseTile::Destroyed()
+//{
+//	OnTileDestroyed.Broadcast(ID);
+//	//	UE_LOG(LogTemp, Warning, TEXT("Tile %i is about to get destroyed"), ID);
+//
+//	Super::Destroyed();
+//}
 

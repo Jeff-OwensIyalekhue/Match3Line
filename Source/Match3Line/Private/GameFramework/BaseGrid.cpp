@@ -63,7 +63,8 @@ void ABaseGrid::GenerateGrid()
 			if (TileArray[MappedID])
 			{
 				TileArray[MappedID]->SetID(MappedID);
-				TileArray[MappedID]->OnTileDestroyed.AddDynamic(this, &ABaseGrid::OnTileDestroyed);
+				TileArray[MappedID]->SetPosition(x, y);
+				//TileArray[MappedID]->OnTileDestroyed.AddDynamic(this, &ABaseGrid::OnTileDestroyed);
 			}
 		}
 	}
@@ -73,9 +74,8 @@ void ABaseGrid::GenerateGrid()
 void ABaseGrid::OnTileDestroyed(int DestroyedTileID)
 {
 	// 
-	UE_LOG(LogTemp, Warning, TEXT("Tile gone %i"), DestroyedTileID);
-	int ReplacingTileID = DestroyedTileID - GridWidth;
-	UE_LOG(LogTemp, Warning, TEXT("Tile drops %i"), ReplacingTileID);
+	/*int ReplacingTileID = DestroyedTileID - GridWidth;
+	UE_LOG(LogTemp, Warning, TEXT("Tile %i drops to %i"), ReplacingTileID, DestroyedTileID);
 
 
 	if (ReplacingTileID > 0) 
@@ -83,13 +83,53 @@ void ABaseGrid::OnTileDestroyed(int DestroyedTileID)
 		if (TileArray[ReplacingTileID])
 		{
 			TileArray[ReplacingTileID]->SetActorLocation(GridPositionsArray[DestroyedTileID]);
+			TileArray[DestroyedTileID]->Destroy();
 			TileArray[DestroyedTileID] = TileArray[ReplacingTileID];
-			TileArray[ReplacingTileID]->Destroy();
 		}
 	}
 	else 
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Create new tile for %i"), DestroyedTileID);
+		TileArray[DestroyedTileID]->Destroy();
 		TileArray[DestroyedTileID] = GetWorld()->SpawnActor<ABaseTile>(Tile, GridPositionsArray[DestroyedTileID], FRotator::ZeroRotator);
+	}*/
+	if (!TileArray.IsValidIndex(DestroyedTileID))
+	{
+		return;
+	}
+
+	// Get the destroyed tile and its grid coordinates
+	ABaseTile* DestroyedTile = TileArray[DestroyedTileID];
+	int Column = DestroyedTile->xPosition;
+	int Row = DestroyedTile->yPosition;
+
+	// Remove the destroyed tile from the grid
+	TileArray[DestroyedTileID] = nullptr;
+
+	// Shift tiles downward (tiles above drop down)
+	// Assuming row 0 is the top row, iterate from the destroyed row down to 1.
+	for (int y = Row; y > 0; y--)
+	{
+		int currentIndex = y * GridWidth + Column;
+		int aboveIndex = (y - 1) * GridWidth + Column;
+
+		// Move the tile from above to the current row
+		if (TileArray[aboveIndex])
+		{
+			TileArray[currentIndex] = TileArray[aboveIndex];
+			TileArray[currentIndex]->SetPosition(Column, y);
+			TileArray[aboveIndex] = nullptr; // Clear the original spot
+		}
+	}
+
+	// Spawn a new tile at the top (row 0)
+	int topIndex = Column;  // since row 0 * GridWidth + Column = Column
+	FVector SpawnLocation = GridPositionsArray[topIndex];
+	ABaseTile* NewTile = GetWorld()->SpawnActor<ABaseTile>(Tile, SpawnLocation, FRotator::ZeroRotator);
+	if (NewTile)
+	{
+		NewTile->SetPosition(Column, 0);
+		TileArray[topIndex] = NewTile;
 	}
 }
 

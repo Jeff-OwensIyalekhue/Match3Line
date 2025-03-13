@@ -15,7 +15,7 @@ enum class ETileType : uint8
 	Yellow
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileDestroyedDelegate, int, DestroyedTileID);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileDestroyedDelegate, int, DestroyedTileID);
 
 UCLASS()
 class MATCH3LINE_API ABaseTile : public AActor
@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* TileMesh;
 
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UTextRenderComponent* TextRender;*/
+
 	UPROPERTY()
 	UMaterialInstanceDynamic* TileTypeMaterial;
 
@@ -37,6 +40,9 @@ protected:
 public:
 	// Type of the tile
 	ETileType TileType;
+
+	int xPosition;
+	int yPosition;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -55,6 +61,8 @@ public:
 
 	void SetID(int NewID);
 
+	void SetPosition(int x, int y);
+
 	UFUNCTION()
 	bool SelectTile(class AMatch3LineCharacter* Selector);
 
@@ -62,10 +70,10 @@ public:
 	UFUNCTION()
 	void DeselesctTile(class AMatch3LineCharacter* Selector);
 
-	UFUNCTION()
-	void HandleOnSelectionEnded(bool bIsValidSelection);
+	//UFUNCTION()
+	//void HandleOnSelectionEnded(bool bIsValidSelection);
 
-	virtual void Destroyed() override;
+	//virtual void Destroyed() override;
 
-	FOnTileDestroyedDelegate OnTileDestroyed;
+	//FOnTileDestroyedDelegate OnTileDestroyed;
 };
