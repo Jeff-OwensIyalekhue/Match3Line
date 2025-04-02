@@ -68,17 +68,6 @@ void ABaseTile::Tick(float DeltaTime)
 
 }
 
-void ABaseTile::SetID(int NewID)
-{
-	ID = NewID;
-}
-
-void ABaseTile::SetPosition(int x, int y)
-{
-	xPosition = x;
-	yPosition = y;
-}
-
 bool ABaseTile::SelectTile(AMatch3LineCharacter* Selector)
 {
 	if (!bIsSelected)
@@ -131,21 +120,3 @@ void ABaseTile::DeselesctTile(AMatch3LineCharacter* Selector)
 
 	//Selector->OnSelectionEnded.RemoveDynamic(this, &ABaseTile::HandleOnSelectionEnded);
 }
-
-//void ABaseTile::HandleOnSelectionEnded(bool bIsValidSelection)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("handle on selection delegete shouldn't be called"));
-//	//if (bIsValidSelection)
-//	//{
-//	//	Destroy();
-//	//}
-//}
-//
-//void ABaseTile::Destroyed()
-//{
-//	OnTileDestroyed.Broadcast(ID);
-//	//	UE_LOG(LogTemp, Warning, TEXT("Tile %i is about to get destroyed"), ID);
-//
-//	Super::Destroyed();
-//}
-

@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/BaseGrid.h"
 #include "Match3LineCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectionEndedDelegate, bool, bIsValidSelection);
 
 UCLASS()
 class MATCH3LINE_API AMatch3LineCharacter : public ACharacter
@@ -17,6 +17,8 @@ private:
 	// Camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FixedCamera;
+
+	ABaseGrid* Grid;
 
 	TArray<class ABaseTile*> SelectedTiles;
 
@@ -46,7 +48,7 @@ public:
 	// Functionbound to the event when the left mouse button is released, 
 	void EndSelection();
 
-	FOnSelectionEndedDelegate OnSelectionEnded;
+	//FOnSelectionEndedDelegate OnSelectionEnded;
 
 	// Function to get the tile the mouse cursor points to
 	class ABaseTile* GetTileUnderCursor();

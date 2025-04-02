@@ -4,12 +4,14 @@
 #include "GameFramework/Match3LineCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/BaseTile.h"
+#include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/BaseGrid.h"
+#include "GameFramework/BaseTile.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "InputActionValue.h"
-#include "Engine/LocalPlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMatch3LineCharacter::AMatch3LineCharacter()
@@ -45,6 +47,7 @@ void AMatch3LineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Grid = Cast<ABaseGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABaseGrid::StaticClass()));
 }
 
 // Called every frame
@@ -84,13 +87,24 @@ void AMatch3LineCharacter::StartSelection()
 			}
 			return;
 		}
-		
+
 		// ToDo check if tile under cursor ist neighbouring the last tile in the array
 		if (SelectedTiles.Num() > 0)
 		{
 			if (SelectedTiles[0]->TileType == TileUnderCursor->TileType)
 			{
-				SelectedTiles.Add(TileUnderCursor);
+				int LastTileId = SelectedTiles[SelectedTiles.Num() - 1]->Id;
+				int CurrentTileId = TileUnderCursor->Id;
+
+				if (Grid->IsDirectNeighbor(LastTileId, CurrentTileId))
+				{
+					SelectedTiles.Add(TileUnderCursor);
+				}
+				else
+				{
+					return;
+				}
+
 			}
 			else
 			{
@@ -110,14 +124,20 @@ void AMatch3LineCharacter::EndSelection()
 {
 	UE_LOG(LogTemp, Log, TEXT("Character ends selection | %i tile(s) are selected"), SelectedTiles.Num());
 	bool bIsValidSelection = SelectedTiles.Num() >= 3;
-	OnSelectionEnded.Broadcast(bIsValidSelection); // Delegate unnessecary?
-	//ToDo inform grid, grid shpuld handle destruction and tile shift creation
+
+	TArray<int> TileIds;
+	TileIds.Empty();
+
 	for (ABaseTile* Tile : SelectedTiles)
 	{
+		if (SelectedTiles.Num() >= 3)
+			TileIds.Add(Tile->Id);
 		Tile->DeselesctTile(this);
 	}
+	TileIds.Sort([](const int A, const int B) { return A < B; });
+	Grid->DestroySelectedTiles(TileIds);
+
 	SelectedTiles.Empty();
-	OnSelectionEnded.Clear();
 }
 
 ABaseTile* AMatch3LineCharacter::GetTileUnderCursor()

@@ -48,13 +48,23 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	bool IsDirectNeighbor(int BaseTileId, int OtherTileId);
+
+	UFUNCTION()
+	void DestroySelectedTiles(const TArray<int>& TileIds);
+
 private:
 	// Function to generate the Grid
 	void GenerateGrid();
 
-
-	// Function to handle the destruction of tile
 	UFUNCTION()
-	void OnTileDestroyed(int DestroyedTileID);
+	void DestroyTile(int Id);
+
+	UFUNCTION()
+	void ShiftColumnDown(int Id);
+
+	UFUNCTION()
+	void SpawnTileAtTop(int Id);
 
 };

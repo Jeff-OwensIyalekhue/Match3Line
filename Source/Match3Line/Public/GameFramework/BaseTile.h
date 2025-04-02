@@ -15,7 +15,6 @@ enum class ETileType : uint8
 	Yellow
 };
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileDestroyedDelegate, int, DestroyedTileID);
 
 UCLASS()
 class MATCH3LINE_API ABaseTile : public AActor
@@ -35,14 +34,14 @@ protected:
 
 	bool bIsSelected;
 
-	int ID;
 
 public:
 	// Type of the tile
+	UPROPERTY(VisibleAnywhere)
 	ETileType TileType;
 
-	int xPosition;
-	int yPosition;
+	UPROPERTY(VisibleAnywhere)
+	int Id;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -59,21 +58,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetID(int NewID);
-
-	void SetPosition(int x, int y);
-
 	UFUNCTION()
 	bool SelectTile(class AMatch3LineCharacter* Selector);
 
 	// Function to deselect a tile for the case this happens during the selection phase -> moving the line backwards the selection
 	UFUNCTION()
 	void DeselesctTile(class AMatch3LineCharacter* Selector);
-
-	//UFUNCTION()
-	//void HandleOnSelectionEnded(bool bIsValidSelection);
-
-	//virtual void Destroyed() override;
-
-	//FOnTileDestroyedDelegate OnTileDestroyed;
 };
